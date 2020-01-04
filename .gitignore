@@ -1,3 +1,6 @@
 __pycache__
 *.pyc
+build/*
+dist/*
+py_feslite.egg-info/*
 
