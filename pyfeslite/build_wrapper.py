@@ -15,7 +15,8 @@ ffibuilder.set_source("_feslite_wrapper",  # name of the output C extension
     #include "feslite.h"
 """,
     libraries=['feslite'],    # link with the feslite library
-    include_dirs=["/home/charles/libfes-lite/src"],  # specify the dir for the sources
+    include_dirs=["/usr/include", "/usr/local/include"],  # specify the dir for the sources
+    library_dirs=["/usr/lib", "/usr/local/lib"],
     #extra_compile_args=["-w"]) # avoids the warnings and add the library path
 )
 

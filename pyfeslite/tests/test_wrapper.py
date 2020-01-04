@@ -1,9 +1,7 @@
-import sys
-sys.path.append(sys.path[0] + "/..")
-
-import wrapper
 import unittest
 import random
+
+import pyfeslite
 
 class WrapperTest(unittest.TestCase):
     """
@@ -19,8 +17,8 @@ class WrapperTest(unittest.TestCase):
             F.append(random.getrandbits(n_eqs))
         if X is None:
             X = random.getrandbits(n)
-        F[0] = wrapper.naive_evaluation(n, F, X)
-        self.assertEqual(wrapper.naive_evaluation(n, F, X), 0, "forged system does NOT contain prescribed solution")
+        F[0] = pyfeslite.naive_evaluation(n, F, X)
+        self.assertEqual(pyfeslite.naive_evaluation(n, F, X), 0, "forged system does NOT contain prescribed solution")
         return (F, X)
 
     def test_forge(self):
@@ -39,11 +37,11 @@ class WrapperTest(unittest.TestCase):
             with self.subTest(i=n):
                 F, X = self.forge_system(n, n)
                 solutions = []
-                n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
+                n_solutions = pyfeslite.feslite_solve(n, F, solutions, 256, 0)
                 # check
                 self.assertIn(X, solutions, "expected solution NOT found (false negative)")
                 for i in range(n_solutions):
-                    Y = wrapper.naive_evaluation(n, F, solutions[i])
+                    Y = pyfeslite.naive_evaluation(n, F, solutions[i])
                     self.assertEqual(Y, 0, "solve() reports false positive")
 
     def test_solve_corner(self):
@@ -69,11 +67,11 @@ class WrapperTest(unittest.TestCase):
             with self.subTest(i=i):
                 F, _ = self.forge_system(n, n, X=X)
                 solutions = []
-                n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
+                n_solutions = pyfeslite.feslite_solve(n, F, solutions, 256, 0)
                 # check
                 self.assertIn(X, solutions, "expected solution NOT found (false negative)")
                 for i in range(n_solutions):
-                    Y = wrapper.naive_evaluation(n, F, solutions[i])
+                    Y = pyfeslite.naive_evaluation(n, F, solutions[i])
                     self.assertEqual(Y, 0, "solve() reports false positive")
 
     
@@ -84,11 +82,11 @@ class WrapperTest(unittest.TestCase):
         n, m = 32, 27
         F, X = self.forge_system(n, m)   # we expect 32 solutions
         solutions = []
-        n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
+        n_solutions = pyfeslite.feslite_solve(n, F, solutions, 256, 0)
         # check solutions
         self.assertIn(X, solutions, "expected solution NOT found (false negative)")
         for i in range(n_solutions):
-            Y = wrapper.naive_evaluation(n, F, solutions[i])
+            Y = pyfeslite.naive_evaluation(n, F, solutions[i])
             self.assertEqual(Y, 0, "solve() reports false positive")
         # check solution number
         self.assertGreater(n_solutions, 8)
@@ -102,11 +100,11 @@ class WrapperTest(unittest.TestCase):
         n, m = 27, 32
         F, X = self.forge_system(n, m)   # we expect 32 solutions
         solutions = []
-        n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
+        n_solutions = pyfeslite.feslite_solve(n, F, solutions, 256, 0)
         # check solutions
         self.assertIn(X, solutions, "expected solution NOT found (false negative)")
         for i in range(n_solutions):
-            Y = wrapper.naive_evaluation(n, F, solutions[i])
+            Y = pyfeslite.naive_evaluation(n, F, solutions[i])
             self.assertEqual(Y, 0, "solve() reports false positive")
         # check solution number
         self.assertEqual(n_solutions, 1)

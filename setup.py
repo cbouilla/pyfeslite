@@ -8,12 +8,7 @@ setuptools.setup(
     description="A wrapper for libfes-lite",
     packages=setuptools.find_packages(),
     setup_requires=["cffi>=1.0.0"],
-    cffi_modules=["wrapper_build:ffibuilder"], # "filename:global"
+    cffi_modules=["pyfeslite/build_wrapper.py:ffibuilder"], # "filename:global"
     install_requires=["cffi>=1.0.0"],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: Public Domain",
-        "Operating System :: OS Independent",
-    ],
-    python_requires='>=3.6',
+    python_requires='>=3.4',
 )
