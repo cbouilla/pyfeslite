@@ -48,23 +48,9 @@ class PyFesLiteTest(unittest.TestCase):
         self.assertEqual(n_, n)
         self.assertEqual(F_, F)
 
-
-    def test_subsystems_35(self):
-        n = 35
-        m = 32
-        F, X = self.forge_system(n, m)
-        s = list(wrapper.subsystems(n, F))
-        self.assertEqual(8, len(s))
-        good = False
-        for prefix, n_, G in s:
-            self.assertEqual(32, n_)
-            solutions = []
-            n_solutions = wrapper.solve(32, G, solutions, 256, 0)
-            for x in solutions:
-                self.assertTrue(wrapper.naive_evaluation(n, F, x + prefix << 32))
-
+    
     def test_subsystems_val(self):
-        n = 35
+        n = 37
         m = 32
         F, X = self.forge_system(n, m)
         for prefix, n_, G in wrapper.subsystems(n, F):
@@ -74,9 +60,21 @@ class PyFesLiteTest(unittest.TestCase):
             z = wrapper.naive_evaluation(n_, G, x)
             self.assertEqual(y, z)
 
+
     def test_full_solve_32_35(self):
         n = 35
         m = 32
+        F, X = self.forge_system(n, m)
+        solutions = wrapper.full_solve(n, F)
+        self.assertIn(X, solutions, "expected solution NOT found (false negative)")
+        for x in solutions:
+            Y = wrapper.naive_evaluation(n, F, x)
+            self.assertEqual(Y, 0, "full_solve() reports false positive")
+
+
+    def test_full_solve_40_35(self):
+        n = 35
+        m = 40
         F, X = self.forge_system(n, m)
         solutions = wrapper.full_solve(n, F)
         self.assertIn(X, solutions, "expected solution NOT found (false negative)")

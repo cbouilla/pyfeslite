@@ -1,9 +1,11 @@
+import multiprocessing
+import itertools
 from cffi import FFI
 ffi = FFI()
 
 from _feslite_wrapper import ffi, lib
 
-def solve(n, F, sols, max_solutions, verbose):
+def feslite_solve(n, F, sols, max_solutions, verbose):
     """
     Invoke the solve() function from libfes-lite.
     """
@@ -12,7 +14,6 @@ def solve(n, F, sols, max_solutions, verbose):
     for i in range(n_solutions):
         sols.append(solutions[i])
     return n_solutions
-
 
 def idx1(i):
     """
@@ -39,25 +40,6 @@ def naive_evaluation(n, F, x):
     ones = (1 << n_eqs) - 1
     for k in range(n):
         v.append(ones * (x & 1))
-        x >>= 1
-    y = F[0]
-    for idx_0 in range(n):
-        v_0 = v[idx_0]
-        y ^= F[idx1(idx_0)] & v_0
-        for idx_1 in range(idx_0):
-            v_1 = v_0 & v[idx_1]
-            y ^= F[idx2(idx_1, idx_0)] & v_1
-    return y
-
-
-def naive_limited(n, F, x):
-    """
-    Naive evaluation of a 32 variables 32 equations system.
-    """
-    F = [(x & 0xffffffff) for x in F]
-    v = []
-    for k in range(n):
-        v.append(0xffffffff if (x & 1) else 0)
         x >>= 1
     y = F[0]
     for idx_0 in range(n):
@@ -111,22 +93,32 @@ def subsystems(n, F):
                 flip_leading_variable(m, G)
 
 
+def _solve(prefix, n_, G):
+    # solve subsystem
+    local_solutions = []
+    k = feslite_solve(n_, G, local_solutions, 256, 0)
+    if k == 256:
+        raise Failure("too many solutions in subsystem; Some may be lost")
+    for x in local_solutions:
+        assert naive_evaluation(n_, G, x) == 0
+    return prefix, local_solutions
+
+
 def full_solve(n, F):
     """
-    Simple sequential function that returns the list of all solutions, 
+    Simple **parallel** function that returns the list of all solutions, 
     with arbitrary number of functions and variables.
-    """
-    solutions = []
+    """   
     F32 = [x & 0xffffffff for x in F]
-    for (prefix, n_, G) in subsystems(n, F32):
-        Gsol = []
-        k = solve(n_, G, Gsol, 256, 0)
-        if k == 256:
-            raise Failure("too many solutions in subsystem; Some may be lost")
-        for x in Gsol:
+    pool = multiprocessing.Pool()
+    # do the hard work
+    sub_solutions = pool.starmap(_solve, subsystems(n, F32))
+    # lift solutions
+    global_solutions = []
+    for (prefix, L) in sub_solutions:
+        for x in L:
             y = x + (prefix << 32)
-            assert naive_evaluation(n_, G, x) == 0
             assert naive_evaluation(n, F32, y) == 0
             if naive_evaluation(n, F, y) == 0:
-                solutions.append(y)
-    return solutions
+                global_solutions.append(y)
+    return global_solutions

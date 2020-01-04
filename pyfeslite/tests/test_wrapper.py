@@ -39,7 +39,7 @@ class WrapperTest(unittest.TestCase):
             with self.subTest(i=n):
                 F, X = self.forge_system(n, n)
                 solutions = []
-                n_solutions = wrapper.solve(n, F, solutions, 256, 0)
+                n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
                 # check
                 self.assertIn(X, solutions, "expected solution NOT found (false negative)")
                 for i in range(n_solutions):
@@ -69,7 +69,7 @@ class WrapperTest(unittest.TestCase):
             with self.subTest(i=i):
                 F, _ = self.forge_system(n, n, X=X)
                 solutions = []
-                n_solutions = wrapper.solve(n, F, solutions, 256, 0)
+                n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
                 # check
                 self.assertIn(X, solutions, "expected solution NOT found (false negative)")
                 for i in range(n_solutions):
@@ -84,7 +84,7 @@ class WrapperTest(unittest.TestCase):
         n, m = 32, 27
         F, X = self.forge_system(n, m)   # we expect 32 solutions
         solutions = []
-        n_solutions = wrapper.solve(n, F, solutions, 256, 0)
+        n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
         # check solutions
         self.assertIn(X, solutions, "expected solution NOT found (false negative)")
         for i in range(n_solutions):
@@ -102,7 +102,7 @@ class WrapperTest(unittest.TestCase):
         n, m = 27, 32
         F, X = self.forge_system(n, m)   # we expect 32 solutions
         solutions = []
-        n_solutions = wrapper.solve(n, F, solutions, 256, 0)
+        n_solutions = wrapper.feslite_solve(n, F, solutions, 256, 0)
         # check solutions
         self.assertIn(X, solutions, "expected solution NOT found (false negative)")
         for i in range(n_solutions):
